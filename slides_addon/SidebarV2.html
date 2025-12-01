@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <!-- キャッシュバスター: <?= buildTimestamp ?> -->
+  <meta name="build-timestamp" content="<?= buildTimestamp ?>">
+  <meta name="addon-version" content="<?= addonVersion ?>">
+  <meta name="deploy-number" content="<?= deployNumber ?>">
+  <style>
+    :root {
+      --brand-red: #CC0000;
+      --brand-black: #111111;
+      --brand-gray: #333333;
+      --brand-light-gray: #F5F5F5;
+      --brand-white: #FFFFFF;
+      --text-main: #111111;
+      --text-muted: #666666;
+      --border-color: #DDDDDD;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', Arial, sans-serif;
+      font-size: 13px;
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 12px;
+      background: var(--brand-white);
+    }
+
+    .header {
+      padding: 12px 0;
+      margin-bottom: 16px;
+      border-bottom: 3px solid var(--brand-red);
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .header .version-info {
+      font-size: 10px;
+      color: #999;
+      margin-top: 4px;
+      font-family: 'Monaco', 'Menlo', monospace;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--brand-black);
+      border-left: 3px solid var(--brand-red);
+      padding-left: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--brand-black);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      font-size: 12px;
+      font-family: inherit;
+      background: #FAFAFA;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--brand-black);
+      background: var(--brand-white);
+    }
+
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .char-count {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    /* Style Category */
+    .style-category {
+      margin-bottom: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .category-header {
+      background: #FAFAFA;
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .category-header:hover {
+      background: #F0F0F0;
+    }
+
+    .category-header.has-selection {
+      background: linear-gradient(135deg, rgba(227, 6, 19, 0.1), rgba(227, 6, 19, 0.05));
+      border-left: 3px solid var(--brand-red);
+    }
+
+    .category-header.has-selection:hover {
+      background: linear-gradient(135deg, rgba(227, 6, 19, 0.15), rgba(227, 6, 19, 0.08));
+    }
+
+    .selection-count {
+      color: var(--brand-red);
+      font-weight: bold;
+    }
+
+    .category-toggle {
+      font-size: 9px;
+      color: #999;
+    }
+
+    .category-content {
+      padding: 10px;
+      display: none;
+      background: var(--brand-white);
+    }
+
+    .category-content.expanded {
+      display: block;
+    }
+
+    .category-styles {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--brand-red);
+    }
+
+    .checkbox-item label {
+      cursor: pointer;
+    }
+
+    .checkbox-item small {
+      color: #999;
+      font-size: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--brand-red);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #A30000;
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #E0E0E0;
+      color: var(--brand-black);
+      margin-top: 8px;
+    }
+
+    /* Loading */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--brand-red);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Results */
+    .results-section {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .results-section.show {
+      display: block;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .result-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brand-black);
+    }
+
+    .slide-count {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: #F5F5F5;
+      padding: 4px 8px;
+      border-radius: 3px;
+    }
+
+    /* Prompt Cards */
+    .prompt-card {
+      background: #FAFAFA;
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .prompt-header {
+      padding: 10px 12px;
+      background: #F0F0F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .prompt-header:hover {
+      background: #E8E8E8;
+    }
+
+    .prompt-title {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .prompt-toggle {
+      font-size: 9px;
+      color: #999;
+    }
+
+    .prompt-content {
+      display: none;
+      padding: 10px 12px;
+    }
+
+    .prompt-content.expanded {
+      display: block;
+    }
+
+    .prompt-text {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      background: #FFF;
+      border: 1px solid #DDD;
+      padding: 8px;
+      border-radius: 3px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .copy-btn {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      padding: 6px;
+      font-size: 11px;
+      background: var(--brand-black);
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      background: #333;
+    }
+
+    .copy-btn.copied {
+      background: #2E7D32;
+    }
+
+    /* Wallpaper Generate Button */
+    .btn-generate-wallpaper {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-generate-wallpaper:hover {
+      background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+      transform: translateY(-1px);
+    }
+
+    .btn-generate-wallpaper:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-generate-wallpaper .price {
+      font-size: 10px;
+      opacity: 0.9;
+    }
+
+    /* Wallpaper Loading Spinner */
+    .wallpaper-loading {
+      display: none;
+      text-align: center;
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    .wallpaper-loading.show {
+      display: block;
+    }
+
+    .wallpaper-loading .mini-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #e0e0e0;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    /* Generated Image Thumbnail */
+    .generated-thumbnail {
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .generated-thumbnail img {
+      max-width: 100%;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .generated-thumbnail img:hover {
+      transform: scale(1.02);
+    }
+
+    .generated-thumbnail .thumbnail-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      justify-content: center;
+    }
+
+    .generated-thumbnail .thumbnail-actions button {
+      padding: 4px 8px;
+      font-size: 10px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .generated-thumbnail .thumbnail-actions button:hover {
+      background: #f0f0f0;
+    }
+
+    /* Success indicator for wallpaper */
+    .wallpaper-success {
+      display: none;
+      background: #E8F5E9;
+      color: #2E7D32;
+      padding: 6px 10px;
+      border-radius: 3px;
+      font-size: 10px;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .wallpaper-success.show {
+      display: block;
+    }
+
+    /* Display Options */
+    .display-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .display-options .checkbox-item {
+      flex: 1 1 45%;
+    }
+
+    /* Collapsible Settings */
+    .collapsible {
+      margin-bottom: 10px;
+    }
+
+    .collapsible-header {
+      padding: 8px 10px;
+      background: #F5F5F5;
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .collapsible-content {
+      display: none;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 3px 3px;
+    }
+
+    .collapsible-content.expanded {
+      display: block;
+    }
+
+    /* Text Settings */
+    .text-setting-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .text-setting-row label {
+      font-size: 10px;
+      color: var(--text-muted);
+      min-width: 50px;
+    }
+
+    .text-setting-row select,
+    .text-setting-row input[type="color"] {
+      flex: 1;
+      padding: 4px;
+      font-size: 11px;
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+    }
+
+    .text-setting-row input[type="color"] {
+      width: 40px;
+      height: 26px;
+      padding: 2px;
+    }
+
+    /* Error Message */
+    .error-message {
+      display: none;
+      background: #FFEBEE;
+      color: #C62828;
+      padding: 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    /* Success Message */
+    .success-message {
+      display: none;
+      background: #E8F5E9;
+      color: #2E7D32;
+      padding: 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    /* API Key Section (外部ユーザー向け) */
+    #apiKeySection {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    #apiKeySection h3 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #856404;
+    }
+
+    #apiKeySection .help-text {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    #apiKeySection .help-text a {
+      color: #0066cc;
+    }
+
+    .api-key-input-group {
+      display: flex;
+      gap: 4px;
+    }
+
+    #geminiApiKeyInput {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .btn-icon {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-icon:hover {
+      background: #f0f0f0;
+    }
+
+    #apiKeyStatus {
+      margin-top: 8px;
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 4px;
+    }
+
+    #apiKeyStatus.valid {
+      color: #28a745;
+      background: #d4edda;
+    }
+
+    #apiKeyStatus.invalid {
+      color: #dc3545;
+      background: #f8d7da;
+    }
+
+    #apiKeyStatus.validating {
+      color: #856404;
+      background: #fff3cd;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>スピーチtoスライド</h1>
+    <p>スピーチ原稿からスライドを自動生成</p>
+    <p class="version-info" id="versionInfo">v<?= addonVersion ?> @<?= deployNumber ?> (<?= buildTimestamp ?>)</p>
+  </div>
+
+  <!-- API Key Section (外部ユーザー向け - 初期非表示) -->
+  <div id="apiKeySection" style="display: none;">
+    <h3>🔑 Gemini APIキー設定</h3>
+    <p class="help-text">
+      このアドオンを使用するには、Gemini APIキーが必要です。<br>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>で取得できます。<br>
+      ⚠️ 有料プラン（Cloud Billing有効）のキーが必要です。
+    </p>
+    <div class="api-key-input-group">
+      <input type="password" id="geminiApiKeyInput"
+             placeholder="APIキーを入力してください"
+             autocomplete="off">
+      <button id="toggleApiKeyVisibility" type="button" class="btn-icon" title="表示/非表示">
+        👁️
+      </button>
+    </div>
+    <div id="apiKeyStatus"></div>
+  </div>
+
+  <!-- 内部用APIキー格納（非表示） -->
+  <input type="hidden" id="geminiApiKey" value="">
+
+  <!-- Speech Input -->
+  <div class="section">
+    <div class="section-title">スピーチ原稿</div>
+    <div class="form-group">
+      <textarea id="speechText" class="form-control" placeholder="スピーチ原稿を入力してください..."></textarea>
+      <div class="char-count"><span id="charCount">0</span> / 10,000 文字</div>
+    </div>
+  </div>
+
+  <!-- Slide Count -->
+  <div class="section">
+    <div class="form-group">
+      <label class="form-label">スライド枚数</label>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <select id="slideCountMode" class="form-control" style="width: auto;">
+          <option value="auto">自動判定</option>
+          <option value="manual">手動指定</option>
+        </select>
+        <input type="number" id="slideCount" class="form-control" value="10" min="1" max="35" style="width: 60px; display: none;">
+      </div>
+    </div>
+  </div>
+
+  <!-- Design Style -->
+  <div class="section">
+    <div class="section-title">デザインスタイル</div>
+
+    <!-- Art/Painting -->
+    <div class="style-category">
+      <div class="category-header" id="header-art" onclick="toggleCategory('art')">
+        <span>🎨 アート・絵画 <span id="count-art">(0/8)</span></span>
+        <span class="category-toggle" id="toggle-art">▼</span>
+      </div>
+      <div class="category-content" id="content-art">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-watercolor" value="watercolor"><label for="style-watercolor">水彩画</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-oil-painting" value="oil-painting"><label for="style-oil-painting">油絵</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-pastel-art" value="pastel-art"><label for="style-pastel-art">パステル</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-sumi-e" value="sumi-e"><label for="style-sumi-e">墨絵</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-pop-art" value="pop-art"><label for="style-pop-art">ポップアート</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-impressionism" value="impressionism"><label for="style-impressionism">印象派</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-art-deco" value="art-deco"><label for="style-art-deco">アールデコ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-art-nouveau" value="art-nouveau"><label for="style-art-nouveau">アールヌーボー</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📕 Weekly Shonen Jump -->
+    <div class="style-category">
+      <div class="category-header" id="header-jump" onclick="toggleCategory('jump')">
+        <span>📕 週刊少年ジャンプ <span id="count-jump">(0/8)</span></span>
+        <span class="category-toggle" id="toggle-jump">▼</span>
+      </div>
+      <div class="category-content" id="content-jump">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-toriyama" value="toriyama"><label for="style-toriyama">鳥山明 / ドラゴンボール</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-onepiece" value="onepiece"><label for="style-onepiece">尾田栄一郎 / ワンピース</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-jojo" value="jojo"><label for="style-jojo">荒木飛呂彦 / ジョジョ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-bleach" value="bleach"><label for="style-bleach">久保帯人 / BLEACH</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-kimetsu" value="kimetsu"><label for="style-kimetsu">吾峠呼世晴 / 鬼滅の刃</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-chainsaw" value="chainsaw"><label for="style-chainsaw">藤本タツキ / チェンソーマン</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-naruto" value="naruto"><label for="style-naruto">岸本斉史 / NARUTO</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-hunterxhunter" value="hunterxhunter"><label for="style-hunterxhunter">冨樫義博 / ハンター×ハンター</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📘 Magazine/Sunday -->
+    <div class="style-category">
+      <div class="category-header" id="header-magazine" onclick="toggleCategory('magazine')">
+        <span>📘 マガジン・サンデー <span id="count-magazine">(0/8)</span></span>
+        <span class="category-toggle" id="toggle-magazine">▼</span>
+      </div>
+      <div class="category-content" id="content-magazine">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-shingeki" value="shingeki"><label for="style-shingeki">諫山創 / 進撃の巨人</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-takahashi" value="takahashi"><label for="style-takahashi">高橋留美子（うる星、犬夜叉）</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-tezuka" value="tezuka"><label for="style-tezuka">手塚治虫</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-hajime-no-ippo" value="hajime-no-ippo"><label for="style-hajime-no-ippo">森川ジョージ / はじめの一歩</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-gto" value="gto"><label for="style-gto">藤沢とおる / GTO</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-shonan-junai" value="shonan-junai"><label for="style-shonan-junai">藤沢とおる / 湘南純愛組</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-baki" value="baki"><label for="style-baki">板垣恵介 / グラップラー刃牙</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-kindaichi" value="kindaichi"><label for="style-kindaichi">金田一少年の事件簿</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 💕 Shoujo/Women's -->
+    <div class="style-category">
+      <div class="category-header" id="header-shoujo" onclick="toggleCategory('shoujo')">
+        <span>💕 少女マンガ <span id="count-shoujo">(0/8)</span></span>
+        <span class="category-toggle" id="toggle-shoujo">▼</span>
+      </div>
+      <div class="category-content" id="content-shoujo">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-sailormoon" value="sailormoon"><label for="style-sailormoon">武内直子 / セーラームーン</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-versailles" value="versailles"><label for="style-versailles">池田理代子 / ベルサイユのばら</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-nana" value="nana"><label for="style-nana">矢沢あい / NANA</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-cardcaptor" value="cardcaptor"><label for="style-cardcaptor">CLAMP / カードキャプターさくら</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-fruits-basket" value="fruits-basket"><label for="style-fruits-basket">高屋奈月 / フルーツバスケット</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-kimi-ni-todoke" value="kimi-ni-todoke"><label for="style-kimi-ni-todoke">椎名軽穂 / 君に届け</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-utena" value="utena"><label for="style-utena">さいとうちほ / 少女革命ウテナ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-hanasakeru" value="hanasakeru"><label for="style-hanasakeru">樹なつみ / 花咲ける青少年</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📙 Seinen -->
+    <div class="style-category">
+      <div class="category-header" id="header-seinen" onclick="toggleCategory('seinen')">
+        <span>📙 青年マンガ <span id="count-seinen">(0/3)</span></span>
+        <span class="category-toggle" id="toggle-seinen">▼</span>
+      </div>
+      <div class="category-content" id="content-seinen">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-goldenkamuy" value="goldenkamuy"><label for="style-goldenkamuy">野田サトル / ゴールデンカムイ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-akira" value="akira"><label for="style-akira">大友克洋 / AKIRA</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-ghost-in-shell" value="ghost-in-shell"><label for="style-ghost-in-shell">士郎正宗 / 攻殻機動隊</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🎬 Anime Studios -->
+    <div class="style-category">
+      <div class="category-header" id="header-studio" onclick="toggleCategory('studio')">
+        <span>🎬 アニメスタジオ <span id="count-studio">(0/5)</span></span>
+        <span class="category-toggle" id="toggle-studio">▼</span>
+      </div>
+      <div class="category-content" id="content-studio">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-studio-ghibli" value="studio-ghibli"><label for="style-studio-ghibli">スタジオジブリ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-shinkai" value="shinkai"><label for="style-shinkai">新海誠</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-evangelion" value="evangelion"><label for="style-evangelion">エヴァンゲリオン</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-kyoani" value="kyoani"><label for="style-kyoani">京都アニメーション</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-trigger" value="trigger"><label for="style-trigger">スタジオトリガー</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🌍 Western Animation -->
+    <div class="style-category">
+      <div class="category-header" id="header-western" onclick="toggleCategory('western')">
+        <span>🌍 海外アニメ <span id="count-western">(0/8)</span></span>
+        <span class="category-toggle" id="toggle-western">▼</span>
+      </div>
+      <div class="category-content" id="content-western">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-disney-classic" value="disney-classic"><label for="style-disney-classic">ディズニー</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-pixar-3d" value="pixar-3d"><label for="style-pixar-3d">ピクサー</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-spiderverse" value="spiderverse"><label for="style-spiderverse">スパイダーバース</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-timburton" value="timburton"><label for="style-timburton">ティム・バートン</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-simpsons" value="simpsons"><label for="style-simpsons">シンプソンズ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-southpark" value="southpark"><label for="style-southpark">サウスパーク</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-american-comics" value="american-comics"><label for="style-american-comics">アメコミ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-cartoon-network" value="cartoon-network"><label for="style-cartoon-network">カートゥーン</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✏️ General Anime/Manga Styles -->
+    <div class="style-category">
+      <div class="category-header" id="header-general-anime" onclick="toggleCategory('general-anime')">
+        <span>✏️ 一般スタイル <span id="count-general-anime">(0/4)</span></span>
+        <span class="category-toggle" id="toggle-general-anime">▼</span>
+      </div>
+      <div class="category-content" id="content-general-anime">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-shonen-jump" value="shonen-jump"><label for="style-shonen-jump">少年ジャンプ風（汎用）</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-shoujo-manga" value="shoujo-manga"><label for="style-shoujo-manga">少女マンガ風（汎用）</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-gekiga" value="gekiga"><label for="style-gekiga">劇画風</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-anime-background" value="anime-background"><label for="style-anime-background">日本アニメ背景</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design/Graphic -->
+    <div class="style-category">
+      <div class="category-header" id="header-design" onclick="toggleCategory('design')">
+        <span>📐 デザイン <span id="count-design">(0/8)</span></span>
+        <span class="category-toggle" id="toggle-design">▼</span>
+      </div>
+      <div class="category-content" id="content-design">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-flat-design" value="flat-design"><label for="style-flat-design">フラットデザイン</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-material-design" value="material-design"><label for="style-material-design">マテリアルデザイン</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-neon-sign" value="neon-sign"><label for="style-neon-sign">ネオン看板</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-retro-poster" value="retro-poster"><label for="style-retro-poster">レトロポスター</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-typography-art" value="typography-art"><label for="style-typography-art">タイポグラフィ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-collage" value="collage"><label for="style-collage">コラージュ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-gradient-modern" value="gradient-modern"><label for="style-gradient-modern">グラデーション</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-isometric" value="isometric"><label for="style-isometric">イソメトリック</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Business -->
+    <div class="style-category">
+      <div class="category-header" id="header-business" onclick="toggleCategory('business')">
+        <span>💼 ビジネス <span id="count-business">(0/5)</span></span>
+        <span class="category-toggle" id="toggle-business">▼</span>
+      </div>
+      <div class="category-content" id="content-business">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-business-professional" value="business-professional"><label for="style-business-professional">ビジネス</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-startup-modern" value="startup-modern"><label for="style-startup-modern">スタートアップ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-tech-company" value="tech-company"><label for="style-tech-company">テック企業</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-finance-consulting" value="finance-consulting"><label for="style-finance-consulting">金融・コンサル</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-educational" value="educational"><label for="style-educational">教育・学術</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo/Realistic -->
+    <div class="style-category">
+      <div class="category-header" id="header-photo" onclick="toggleCategory('photo')">
+        <span>📸 写真・リアル <span id="count-photo">(0/6)</span></span>
+        <span class="category-toggle" id="toggle-photo">▼</span>
+      </div>
+      <div class="category-content" id="content-photo">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-photorealistic" value="photorealistic"><label for="style-photorealistic">フォトリアル</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-cinematic" value="cinematic"><label for="style-cinematic">シネマティック</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-documentary" value="documentary"><label for="style-documentary">ドキュメンタリー</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-fashion-magazine" value="fashion-magazine"><label for="style-fashion-magazine">ファッション雑誌</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-street-photography" value="street-photography"><label for="style-street-photography">ストリート写真</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-architectural-photo" value="architectural-photo"><label for="style-architectural-photo">建築写真</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SF/Fantasy -->
+    <div class="style-category">
+      <div class="category-header" id="header-scifi" onclick="toggleCategory('scifi')">
+        <span>🚀 SF・ファンタジー <span id="count-scifi">(0/7)</span></span>
+        <span class="category-toggle" id="toggle-scifi">▼</span>
+      </div>
+      <div class="category-content" id="content-scifi">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-sci-fi" value="sci-fi"><label for="style-sci-fi">SF未来都市</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-steampunk" value="steampunk"><label for="style-steampunk">スチームパンク</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-solarpunk" value="solarpunk"><label for="style-solarpunk">ソーラーパンク</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-fantasy-rpg" value="fantasy-rpg"><label for="style-fantasy-rpg">ファンタジーRPG</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-space-exploration" value="space-exploration"><label for="style-space-exploration">宇宙探査</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-dystopian" value="dystopian"><label for="style-dystopian">ディストピア</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-biopunk" value="biopunk"><label for="style-biopunk">バイオパンク</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History/Culture -->
+    <div class="style-category">
+      <div class="category-header" id="header-history" onclick="toggleCategory('history')">
+        <span>🏛️ 歴史・文化 <span id="count-history">(0/21)</span></span>
+        <span class="category-toggle" id="toggle-history">▼</span>
+      </div>
+      <div class="category-content" id="content-history">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-ukiyo-e" value="ukiyo-e"><label for="style-ukiyo-e">浮世絵</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-medieval-europe" value="medieval-europe"><label for="style-medieval-europe">中世ヨーロッパ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-renaissance" value="renaissance"><label for="style-renaissance">ルネサンス</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-roaring-twenties" value="roaring-twenties"><label for="style-roaring-twenties">1920年代</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-retro-80s" value="retro-80s"><label for="style-retro-80s">1980年代</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-egyptian" value="egyptian"><label for="style-egyptian">古代エジプト</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-ancient-greece" value="ancient-greece"><label for="style-ancient-greece">古代ギリシャ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-ancient-rome" value="ancient-rome"><label for="style-ancient-rome">古代ローマ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-mayan-aztec" value="mayan-aztec"><label for="style-mayan-aztec">マヤ・アステカ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-mesopotamia" value="mesopotamia"><label for="style-mesopotamia">メソポタミア</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-chinese-palace" value="chinese-palace"><label for="style-chinese-palace">中国宮廷</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-indian-decor" value="indian-decor"><label for="style-indian-decor">インド装飾</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-heian-period" value="heian-period"><label for="style-heian-period">平安時代</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-tibetan-buddhist" value="tibetan-buddhist"><label for="style-tibetan-buddhist">チベット仏教</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-persian-decor" value="persian-decor"><label for="style-persian-decor">ペルシャ装飾</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-ottoman" value="ottoman"><label for="style-ottoman">オスマン帝国</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-islamic-medieval" value="islamic-medieval"><label for="style-islamic-medieval">中世イスラム</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-celtic" value="celtic"><label for="style-celtic">ケルト装飾</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-viking" value="viking"><label for="style-viking">バイキング</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-baroque" value="baroque"><label for="style-baroque">バロック</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-african-art" value="african-art"><label for="style-african-art">アフリカンアート</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nature -->
+    <div class="style-category">
+      <div class="category-header" id="header-nature" onclick="toggleCategory('nature')">
+        <span>🌿 自然 <span id="count-nature">(0/6)</span></span>
+        <span class="category-toggle" id="toggle-nature">▼</span>
+      </div>
+      <div class="category-content" id="content-nature">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-nature-organic" value="nature-organic"><label for="style-nature-organic">自然オーガニック</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-botanical" value="botanical"><label for="style-botanical">ボタニカル</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-marine-life" value="marine-life"><label for="style-marine-life">海洋生物</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-mountain-landscape" value="mountain-landscape"><label for="style-mountain-landscape">山岳風景</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-tropical-rainforest" value="tropical-rainforest"><label for="style-tropical-rainforest">熱帯雨林</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-aurora" value="aurora"><label for="style-aurora">オーロラ</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mood -->
+    <div class="style-category">
+      <div class="category-header" id="header-mood" onclick="toggleCategory('mood')">
+        <span>🎭 ムード <span id="count-mood">(0/5)</span></span>
+        <span class="category-toggle" id="toggle-mood">▼</span>
+      </div>
+      <div class="category-content" id="content-mood">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-film-noir" value="film-noir"><label for="style-film-noir">ノワール</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-gothic" value="gothic"><label for="style-gothic">ゴシック</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-pastel-dream" value="pastel-dream"><label for="style-pastel-dream">パステルドリーム</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-cyberpunk" value="cyberpunk"><label for="style-cyberpunk">サイバーパンク</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-minimal-modern" value="minimal-modern"><label for="style-minimal-modern">ミニマリズム</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entertainment -->
+    <div class="style-category">
+      <div class="category-header" id="header-entertainment" onclick="toggleCategory('entertainment')">
+        <span>🎪 エンタメ <span id="count-entertainment">(0/4)</span></span>
+        <span class="category-toggle" id="toggle-entertainment">▼</span>
+      </div>
+      <div class="category-content" id="content-entertainment">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-circus-carnival" value="circus-carnival"><label for="style-circus-carnival">サーカス</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-music-festival" value="music-festival"><label for="style-music-festival">音楽フェス</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-sports-dynamic" value="sports-dynamic"><label for="style-sports-dynamic">スポーツ</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="style-food-photography" value="food-photography"><label for="style-food-photography">料理・フード</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom -->
+    <div class="style-category">
+      <div class="category-header" id="header-custom" onclick="toggleCategory('custom')">
+        <span>⚙️ カスタム <span id="count-custom">(0/1)</span></span>
+        <span class="category-toggle" id="toggle-custom">▼</span>
+      </div>
+      <div class="category-content" id="content-custom">
+        <div class="category-styles">
+          <div class="checkbox-item"><input type="checkbox" id="style-custom" value="custom"><label for="style-custom">カスタムスタイル</label></div>
+        </div>
+        <div id="customStyleGroup" style="display: none; margin-top: 8px;">
+          <textarea id="customStyle" class="form-control" rows="2" placeholder="スタイルを自由に記述..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Display Options -->
+  <div class="section">
+    <div class="section-title">表示オプション</div>
+    <div class="display-options">
+      <div class="checkbox-item">
+        <input type="checkbox" id="showJapaneseTitle" checked>
+        <label for="showJapaneseTitle">日本語タイトル</label>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="showEnglishTitle" checked>
+        <label for="showEnglishTitle">英語タイトル</label>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="showJapaneseMessage" checked>
+        <label for="showJapaneseMessage">日本語メッセージ</label>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="showEnglishMessage" checked>
+        <label for="showEnglishMessage">英語メッセージ</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Text Settings (Collapsible) -->
+  <div class="section">
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible('textSettings')">
+        <span>テキスト詳細設定</span>
+        <span style="font-size: 9px; color: #999;">▼</span>
+      </div>
+      <div class="collapsible-content" id="textSettings">
+        <div style="margin-bottom: 10px;">
+          <strong style="font-size: 11px;">日本語タイトル</strong>
+          <div class="text-setting-row">
+            <label>縦位置</label>
+            <select id="jpTitlePosition">
+              <option value="top" selected>上部</option>
+              <option value="center">中央</option>
+              <option value="bottom">下部</option>
+            </select>
+          </div>
+          <div class="text-setting-row">
+            <label>横揃え</label>
+            <select id="jpTitleAlignment">
+              <option value="left">左寄せ</option>
+              <option value="center" selected>中央</option>
+              <option value="right">右寄せ</option>
+            </select>
+            <label>色</label>
+            <input type="color" id="jpTitleColor" value="#FFFFFF">
+          </div>
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong style="font-size: 11px;">日本語メッセージ</strong>
+          <div class="text-setting-row">
+            <label>縦位置</label>
+            <select id="jpMessagePosition">
+              <option value="top">上部</option>
+              <option value="center">中央</option>
+              <option value="bottom" selected>下部</option>
+            </select>
+          </div>
+          <div class="text-setting-row">
+            <label>横揃え</label>
+            <select id="jpMessageAlignment">
+              <option value="left">左寄せ</option>
+              <option value="center" selected>中央</option>
+              <option value="right">右寄せ</option>
+            </select>
+            <label>色</label>
+            <input type="color" id="jpMessageColor" value="#FFFFFF">
+          </div>
+          <div class="text-setting-row">
+            <label>分量</label>
+            <select id="jpMessageAmount">
+              <option value="low">少ない</option>
+              <option value="normal" selected>普通</option>
+              <option value="high">多い</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate Button -->
+  <div class="section">
+    <button id="generateBtn" class="btn btn-primary" onclick="generateSlides()">
+      スライドを生成
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>スライドを生成中...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-message" id="errorMessage"></div>
+
+  <!-- Success Message -->
+  <div class="success-message" id="successMessage"></div>
+
+  <!-- Results -->
+  <div class="results-section" id="resultsSection">
+    <div class="result-header">
+      <h3>生成されたプロンプト</h3>
+      <span class="slide-count" id="slideCountDisplay">0 枚</span>
+    </div>
+    <button class="btn btn-secondary" onclick="copyAllPrompts()">全てコピー</button>
+    <div id="promptCards" style="margin-top: 12px;"></div>
+  </div>
+
+  <!-- Log Link -->
+  <div style="margin-top: 20px; text-align: center; padding: 10px 0; border-top: 1px solid var(--border-color);">
+    <a href="https://docs.google.com/spreadsheets/d/1q1MQEM3xmjC9BF8YpEZBzv1t64F5QP7E-2gvHIhQChc/edit"
+       target="_blank"
+       style="color: var(--text-muted); font-size: 11px; text-decoration: none;">
+      📊 利用ログを見る
+    </a>
+  </div>
+
+  <script>
+    // Global variables
+    let allSlides = [];
+    let isAuthorizedUser = false;
+
+    // 内部APIキー（許可ドメイン用）
+    const INTERNAL_API_KEY = 'AIzaSyCQy6wjX5vDzAVTjpq_9y3R4NW_usFno5M';
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // まずユーザー認証状態を確認
+      google.script.run
+        .withSuccessHandler(function(authResult) {
+          initializeSidebar(authResult);
+        })
+        .withFailureHandler(function(error) {
+          console.error('Authorization check failed:', error);
+          // フォールバック: APIキー入力を表示（外部ユーザーとして扱う）
+          initializeSidebar({ isAuthorized: false, email: '', domain: '' });
+        })
+        .checkUserAuthorization();
+    });
+
+    /**
+     * サイドバーを初期化
+     * @param {Object} authResult - 認証結果 { isAuthorized, email, domain }
+     */
+    function initializeSidebar(authResult) {
+      console.log('initializeSidebar:', authResult);
+      isAuthorizedUser = authResult.isAuthorized;
+
+      if (authResult.isAuthorized) {
+        // 許可ドメイン: APIキー欄を非表示、内部キーを使用
+        document.getElementById('apiKeySection').style.display = 'none';
+        document.getElementById('geminiApiKey').value = INTERNAL_API_KEY;
+        // ボタンを有効化
+        updateButtonStates(true);
+      } else {
+        // 外部ユーザー: APIキー入力欄を表示
+        document.getElementById('apiKeySection').style.display = 'block';
+        loadApiKeyFromStorage();
+        setupApiKeyListeners();
+        // 初期状態ではボタンを無効化（APIキー検証後に有効化）
+        updateButtonStates(false);
+      }
+
+      loadSettings();
+      setupEventListeners();
+      loadVersionInfo();
+
+      // 非認証ユーザーの場合、制限テンプレートを非表示
+      if (!authResult.isAuthorized) {
+        hideRestrictedTemplates();
+      }
+    }
+
+    /**
+     * 制限テンプレート（バイネーム）を非表示にする
+     * オープンアクセスユーザー向け
+     */
+    function hideRestrictedTemplates() {
+      const restrictedTemplates = [
+        // ジャンプ系（8個）
+        'toriyama', 'onepiece', 'jojo', 'bleach', 'kimetsu', 'chainsaw', 'naruto', 'hunterxhunter',
+        // マガジン・サンデー系（8個）
+        'shingeki', 'takahashi', 'tezuka',
+        'hajime-no-ippo', 'gto', 'shonan-junai', 'baki', 'kindaichi',
+        // 少女マンガ系（8個）
+        'sailormoon', 'versailles', 'nana',
+        'cardcaptor', 'fruits-basket', 'kimi-ni-todoke', 'utena', 'hanasakeru',
+        // 青年マンガ系（3個）
+        'goldenkamuy', 'akira', 'ghost-in-shell',
+        // アニメスタジオ系（5個）
+        'studio-ghibli', 'shinkai', 'evangelion', 'kyoani', 'trigger',
+        // 海外アニメ系（10個）
+        'disney-classic', 'pixar-3d', 'spiderverse', 'timburton', 'simpsons',
+        'southpark', 'american-comics', 'cartoon-network', 'dreamworks', 'illumination'
+      ];
+
+      let hiddenCount = 0;
+      restrictedTemplates.forEach(function(templateId) {
+        const checkbox = document.getElementById('style-' + templateId);
+        if (checkbox) {
+          const checkboxItem = checkbox.closest('.checkbox-item');
+          if (checkboxItem) {
+            checkboxItem.style.display = 'none';
+            hiddenCount++;
+          }
+        }
+      });
+
+      console.log('Hidden ' + hiddenCount + ' restricted templates for open access user');
+
+      // 空になったカテゴリーを非表示
+      hideEmptyCategories();
+    }
+
+    /**
+     * 表示可能なテンプレートがないカテゴリーを非表示
+     */
+    function hideEmptyCategories() {
+      const categories = document.querySelectorAll('.category');
+      categories.forEach(function(category) {
+        const visibleItems = category.querySelectorAll('.checkbox-item:not([style*="display: none"])');
+        if (visibleItems.length === 0) {
+          category.style.display = 'none';
+          console.log('Hidden empty category:', category.querySelector('.category-header')?.textContent);
+        }
+      });
+    }
+
+    // バージョン情報を読み込んで表示
+    function loadVersionInfo() {
+      google.script.run
+        .withSuccessHandler(function(info) {
+          const versionEl = document.getElementById('versionInfo');
+          if (versionEl && info) {
+            versionEl.textContent = 'v' + info.version + ' @' + info.deployNumber + ' (' + info.buildDate + ')';
+            versionEl.title = 'Script ID: ' + info.scriptId;
+          }
+        })
+        .withFailureHandler(function(error) {
+          const versionEl = document.getElementById('versionInfo');
+          if (versionEl) {
+            versionEl.textContent = 'v?.? (取得失敗)';
+          }
+        })
+        .getAddonVersion();
+    }
+
+    // ============================================================
+    // APIキー管理関数（外部ユーザー向け）
+    // ============================================================
+
+    /**
+     * LocalStorageからAPIキーを読み込み
+     */
+    function loadApiKeyFromStorage() {
+      const savedKey = localStorage.getItem('geminiApiKey_external');
+      if (savedKey) {
+        document.getElementById('geminiApiKeyInput').value = savedKey;
+        validateAndSetApiKey(savedKey);
+      } else {
+        // キーがない場合は警告表示
+        const statusEl = document.getElementById('apiKeyStatus');
+        statusEl.textContent = '⚠️ APIキーを入力してください';
+        statusEl.className = '';
+      }
+    }
+
+    /**
+     * APIキーを検証して設定
+     * @param {string} apiKey - 検証するAPIキー
+     */
+    function validateAndSetApiKey(apiKey) {
+      const statusEl = document.getElementById('apiKeyStatus');
+
+      if (!apiKey || apiKey.trim() === '') {
+        statusEl.textContent = '⚠️ APIキーを入力してください';
+        statusEl.className = '';
+        document.getElementById('geminiApiKey').value = '';
+        updateButtonStates(false);
+        return;
+      }
+
+      statusEl.textContent = '🔄 検証中...';
+      statusEl.className = 'validating';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.valid) {
+            statusEl.textContent = '✓ APIキー有効';
+            statusEl.className = 'valid';
+            document.getElementById('geminiApiKey').value = apiKey.trim();
+            localStorage.setItem('geminiApiKey_external', apiKey.trim());
+            updateButtonStates(true);
+          } else {
+            statusEl.textContent = '✗ ' + (result.error || 'APIキーが無効です');
+            statusEl.className = 'invalid';
+            document.getElementById('geminiApiKey').value = '';
+            updateButtonStates(false);
+          }
+        })
+        .withFailureHandler(function(error) {
+          statusEl.textContent = '✗ 検証エラー: ' + error.message;
+          statusEl.className = 'invalid';
+          document.getElementById('geminiApiKey').value = '';
+          updateButtonStates(false);
+        })
+        .validateApiKey(apiKey.trim());
+    }
+
+    /**
+     * APIキー入力欄のイベントリスナー設定
+     */
+    function setupApiKeyListeners() {
+      const input = document.getElementById('geminiApiKeyInput');
+      const toggleBtn = document.getElementById('toggleApiKeyVisibility');
+
+      if (input) {
+        // 入力変更時に検証（デバウンス付き）
+        let debounceTimer;
+        input.addEventListener('input', function() {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(function() {
+            validateAndSetApiKey(input.value);
+          }, 800);  // 800ms待機
+        });
+
+        // Enter キーで即座に検証
+        input.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            clearTimeout(debounceTimer);
+            validateAndSetApiKey(input.value);
+          }
+        });
+      }
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+          if (input.type === 'password') {
+            input.type = 'text';
+            toggleBtn.textContent = '🙈';
+          } else {
+            input.type = 'password';
+            toggleBtn.textContent = '👁️';
+          }
+        });
+      }
+    }
+
+    /**
+     * 生成ボタンの有効/無効を制御
+     * @param {boolean} enabled - ボタンを有効にするか
+     */
+    function updateButtonStates(enabled) {
+      const generateBtn = document.getElementById('generateBtn');
+
+      if (generateBtn) {
+        generateBtn.disabled = !enabled;
+      }
+
+      // 壁紙生成ボタンも制御（動的に生成されるため、存在確認）
+      document.querySelectorAll('.btn-generate-wallpaper').forEach(btn => {
+        btn.disabled = !enabled;
+      });
+    }
+
+    // Event Listeners
+    function setupEventListeners() {
+      // Character count
+      document.getElementById('speechText').addEventListener('input', function() {
+        document.getElementById('charCount').textContent = this.value.length;
+      });
+
+      // Slide count mode
+      document.getElementById('slideCountMode').addEventListener('change', function() {
+        document.getElementById('slideCount').style.display =
+          this.value === 'manual' ? 'block' : 'none';
+      });
+
+      // Custom style toggle
+      document.getElementById('style-custom').addEventListener('change', function() {
+        document.getElementById('customStyleGroup').style.display =
+          this.checked ? 'block' : 'none';
+      });
+
+      // Auto-save settings
+      document.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('change', saveSettings);
+      });
+
+      // Update category selection status when style checkboxes change
+      document.querySelectorAll('.category-styles input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', updateCategorySelectionStatus);
+      });
+    }
+
+    // Toggle category
+    function toggleCategory(category) {
+      const content = document.getElementById('content-' + category);
+      const toggle = document.getElementById('toggle-' + category);
+
+      if (content.classList.contains('expanded')) {
+        content.classList.remove('expanded');
+        toggle.textContent = '▼';
+      } else {
+        content.classList.add('expanded');
+        toggle.textContent = '▲';
+      }
+    }
+
+    // Update category selection status (count and highlight)
+    function updateCategorySelectionStatus() {
+      // カウントはDOMから動的に取得（ハードコードしない）
+      const categoryIds = [
+        'art', 'jump', 'magazine', 'shoujo', 'seinen', 'studio', 'western',
+        'general-anime', 'design', 'business', 'photo', 'scifi', 'history',
+        'nature', 'mood', 'entertainment', 'custom'
+      ];
+
+      categoryIds.forEach(cat => {
+        const content = document.getElementById('content-' + cat);
+        const header = document.getElementById('header-' + cat);
+        const countSpan = document.getElementById('count-' + cat);
+
+        if (!content || !header || !countSpan) return;
+
+        // 表示されているチェックボックスのみカウント（非表示は除外）
+        const allCheckboxes = content.querySelectorAll('input[type="checkbox"]');
+        const visibleCheckboxes = Array.from(allCheckboxes).filter(cb => {
+          const item = cb.closest('.checkbox-item');
+          return item && item.style.display !== 'none';
+        });
+
+        const selectedCount = visibleCheckboxes.filter(cb => cb.checked).length;
+        const total = visibleCheckboxes.length;
+
+        // Update count display
+        countSpan.textContent = `(${selectedCount}/${total})`;
+        countSpan.className = selectedCount > 0 ? 'selection-count' : '';
+
+        // Highlight category header if has selection
+        if (selectedCount > 0) {
+          header.classList.add('has-selection');
+        } else {
+          header.classList.remove('has-selection');
+        }
+      });
+    }
+
+    // Expand categories that have selected styles
+    function expandSelectedCategories() {
+      const styleToCategoryMap = {
+        // Art
+        'watercolor': 'art', 'oil-painting': 'art', 'pastel-art': 'art', 'sumi-e': 'art',
+        'pop-art': 'art', 'impressionism': 'art', 'art-deco': 'art', 'art-nouveau': 'art',
+        'pastel': 'art', 'ink-wash': 'art',
+        // Weekly Shonen Jump (📕)
+        'toriyama': 'jump', 'onepiece': 'jump', 'jojo': 'jump', 'bleach': 'jump',
+        'kimetsu': 'jump', 'chainsaw': 'jump', 'naruto': 'jump', 'hunterxhunter': 'jump',
+        // Magazine/Sunday (📘)
+        'shingeki': 'magazine', 'takahashi': 'magazine', 'tezuka': 'magazine',
+        'hajime-no-ippo': 'magazine', 'gto': 'magazine', 'shonan-junai': 'magazine',
+        'baki': 'magazine', 'kindaichi': 'magazine',
+        // Shoujo/Women's (💕)
+        'sailormoon': 'shoujo', 'versailles': 'shoujo', 'nana': 'shoujo',
+        'cardcaptor': 'shoujo', 'fruits-basket': 'shoujo', 'kimi-ni-todoke': 'shoujo',
+        'utena': 'shoujo', 'hanasakeru': 'shoujo',
+        // Seinen (📙)
+        'goldenkamuy': 'seinen', 'akira': 'seinen', 'ghost-in-shell': 'seinen',
+        // Anime Studios (🎬)
+        'studio-ghibli': 'studio', 'shinkai': 'studio', 'evangelion': 'studio',
+        'kyoani': 'studio', 'trigger': 'studio',
+        // Western Animation (🌍)
+        'disney-classic': 'western', 'pixar-3d': 'western', 'spiderverse': 'western',
+        'timburton': 'western', 'simpsons': 'western', 'southpark': 'western',
+        'american-comics': 'western', 'cartoon-network': 'western',
+        // General Anime/Manga Styles (✏️)
+        'shonen-jump': 'general-anime', 'shoujo-manga': 'general-anime',
+        'gekiga': 'general-anime', 'anime-background': 'general-anime',
+        // Design
+        'flat-design': 'design', 'material-design': 'design', 'neon-sign': 'design',
+        'retro-poster': 'design', 'typography-art': 'design', 'collage': 'design',
+        'gradient-modern': 'design', 'isometric': 'design',
+        // Business
+        'business-professional': 'business', 'startup-modern': 'business', 'tech-company': 'business',
+        'finance-consulting': 'business', 'educational': 'business',
+        // Photo
+        'photorealistic': 'photo', 'cinematic': 'photo', 'documentary': 'photo',
+        'fashion-magazine': 'photo', 'street-photography': 'photo', 'architectural-photo': 'photo',
+        // SciFi
+        'sci-fi': 'scifi', 'steampunk': 'scifi', 'solarpunk': 'scifi', 'fantasy-rpg': 'scifi',
+        'space-exploration': 'scifi', 'dystopian': 'scifi', 'biopunk': 'scifi', 'cyberpunk': 'scifi',
+        // History
+        'ukiyo-e': 'history', 'medieval-europe': 'history', 'renaissance': 'history',
+        'roaring-twenties': 'history', 'retro-80s': 'history', 'egyptian': 'history',
+        'ancient-greece': 'history', 'ancient-rome': 'history', 'mayan-aztec': 'history',
+        'mesopotamia': 'history', 'chinese-palace': 'history', 'indian-decor': 'history',
+        'heian-period': 'history', 'tibetan-buddhist': 'history', 'persian-decor': 'history',
+        'ottoman': 'history', 'islamic-medieval': 'history', 'celtic': 'history',
+        'viking': 'history', 'baroque': 'history', 'african-art': 'history',
+        // Nature
+        'nature-organic': 'nature', 'botanical': 'nature', 'marine-life': 'nature',
+        'mountain-landscape': 'nature', 'tropical-rainforest': 'nature', 'aurora': 'nature',
+        // Mood
+        'film-noir': 'mood', 'gothic': 'mood', 'pastel-dream': 'mood',
+        'minimal-modern': 'mood',
+        // Entertainment
+        'circus-carnival': 'entertainment', 'music-festival': 'entertainment',
+        'sports-dynamic': 'entertainment', 'food-photography': 'entertainment',
+        // Custom
+        'custom': 'custom'
+      };
+
+      const expandedCategories = new Set();
+
+      document.querySelectorAll('.category-styles input[type="checkbox"]:checked').forEach(cb => {
+        const cat = styleToCategoryMap[cb.value];
+        if (cat && !expandedCategories.has(cat)) {
+          expandedCategories.add(cat);
+          const content = document.getElementById('content-' + cat);
+          const toggle = document.getElementById('toggle-' + cat);
+          if (content && !content.classList.contains('expanded')) {
+            content.classList.add('expanded');
+            if (toggle) toggle.textContent = '▲';
+          }
+        }
+      });
+    }
+
+    // Toggle collapsible
+    function toggleCollapsible(id) {
+      const content = document.getElementById(id);
+      content.classList.toggle('expanded');
+    }
+
+    // Generate Slides
+    function generateSlides() {
+      const speechText = document.getElementById('speechText').value;
+
+      if (!speechText.trim()) {
+        showError('スピーチ原稿を入力してください');
+        return;
+      }
+
+      const apiKey = document.getElementById('geminiApiKey').value;
+
+      // Collect settings
+      const settings = collectSettings();
+
+      // Show loading
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('generateBtn').disabled = true;
+      document.getElementById('errorMessage').classList.remove('show');
+      document.getElementById('successMessage').classList.remove('show');
+      document.getElementById('resultsSection').classList.remove('show');
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('generateBtn').disabled = false;
+
+          if (result.success) {
+            allSlides = result.slides;
+            showSuccess(result.message);
+            displayPrompts(result.slides);
+          } else {
+            showError(result.error);
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('generateBtn').disabled = false;
+          showError(error.message);
+        })
+        .generateSlidesFromSpeech(settings, speechText);
+    }
+
+    // Collect Settings
+    function collectSettings() {
+      // Get selected styles
+      const designStyles = [];
+      document.querySelectorAll('.category-styles input[type="checkbox"]:checked').forEach(cb => {
+        designStyles.push(cb.value);
+      });
+
+      return {
+        geminiApiKey: document.getElementById('geminiApiKey').value,
+        slideCountMode: document.getElementById('slideCountMode').value,
+        slideCount: document.getElementById('slideCount').value,
+        designStyles: designStyles,
+        customStyle: document.getElementById('customStyle').value,
+        showJapaneseTitle: document.getElementById('showJapaneseTitle').checked,
+        showEnglishTitle: document.getElementById('showEnglishTitle').checked,
+        showJapaneseMessage: document.getElementById('showJapaneseMessage').checked,
+        showEnglishMessage: document.getElementById('showEnglishMessage').checked,
+        aspectRatio: '16:9',
+        textSettings: {
+          japaneseTitle: {
+            position: document.getElementById('jpTitlePosition').value + '-' + document.getElementById('jpTitleAlignment').value,
+            alignment: document.getElementById('jpTitleAlignment').value,
+            size: '48px',
+            color: document.getElementById('jpTitleColor').value
+          },
+          englishTitle: {
+            position: 'top-center-subtitle',
+            alignment: document.getElementById('jpTitleAlignment').value,
+            size: '24px',
+            color: '#CCCCCC'
+          },
+          japaneseMessage: {
+            position: document.getElementById('jpMessagePosition').value + '-' + document.getElementById('jpMessageAlignment').value,
+            alignment: document.getElementById('jpMessageAlignment').value,
+            size: '32px',
+            color: document.getElementById('jpMessageColor').value,
+            amount: document.getElementById('jpMessageAmount').value
+          },
+          englishMessage: {
+            position: 'bottom-' + document.getElementById('jpMessageAlignment').value,
+            alignment: document.getElementById('jpMessageAlignment').value,
+            size: '28px',
+            color: '#CCCCCC'
+          },
+          effects: {
+            dropShadow: true,
+            glow: false
+          }
+        }
+      };
+    }
+
+    // Display Prompts
+    function displayPrompts(slides) {
+      const container = document.getElementById('promptCards');
+      container.innerHTML = '';
+
+      document.getElementById('slideCountDisplay').textContent = slides.length + ' 枚';
+
+      slides.forEach((slide, index) => {
+        const card = document.createElement('div');
+        card.className = 'prompt-card';
+        card.innerHTML = `
+          <div class="prompt-header" onclick="togglePrompt(${index})">
+            <span class="prompt-title">${slide.slideNumber}. ${slide.japaneseTitle}</span>
+            <span class="prompt-toggle" id="prompt-toggle-${index}">▲</span>
+          </div>
+          <div class="prompt-content expanded" id="prompt-content-${index}">
+            <div class="prompt-text">${escapeHtml(slide.englishPrompt || slide.prompt)}</div>
+            <button class="copy-btn" onclick="copyPrompt(${index})">コピー</button>
+            <button class="btn-generate-wallpaper" id="wallpaper-btn-${index}" onclick="confirmGenerateWallpaper(${index})" title="スライド${slide.slideNumber}に壁紙を設定">
+              🎨 壁紙生成 <span class="price">[$0.13]</span>
+            </button>
+            <div class="wallpaper-loading" id="wallpaper-loading-${index}">
+              <span class="mini-spinner"></span>壁紙を生成中...
+            </div>
+            <div class="wallpaper-success" id="wallpaper-success-${index}">
+              ✓ 背景に設定しました
+            </div>
+            <div class="generated-thumbnail" id="thumbnail-${index}"></div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('resultsSection').classList.add('show');
+    }
+
+    // Toggle Prompt
+    function togglePrompt(index) {
+      const content = document.getElementById('prompt-content-' + index);
+      const toggle = document.getElementById('prompt-toggle-' + index);
+
+      if (content.classList.contains('expanded')) {
+        content.classList.remove('expanded');
+        toggle.textContent = '▼';
+      } else {
+        content.classList.add('expanded');
+        toggle.textContent = '▲';
+      }
+    }
+
+    // Copy Prompt
+    function copyPrompt(index) {
+      const slide = allSlides[index];
+      const text = slide.englishPrompt || slide.prompt;
+
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        btn.textContent = 'コピー完了!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'コピー';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Copy All Prompts
+    function copyAllPrompts() {
+      const allText = allSlides.map((slide, i) => {
+        return `=== スライド ${slide.slideNumber}: ${slide.japaneseTitle} ===\n\n${slide.englishPrompt || slide.prompt}`;
+      }).join('\n\n---\n\n');
+
+      navigator.clipboard.writeText(allText).then(() => {
+        showSuccess('全てのプロンプトをコピーしました');
+      });
+    }
+
+    // ============================================================
+    // Wallpaper Generation Functions
+    // ============================================================
+
+    /**
+     * Show confirmation dialog before generating wallpaper
+     * @param {number} index - Slide index (0-based)
+     */
+    function confirmGenerateWallpaper(index) {
+      const slide = allSlides[index];
+
+      const confirmed = confirm(
+        '💡 無料: プロンプトをコピー → gemini.google.com\n\n' +
+        '有料自動生成（約20円）→ OK'
+      );
+
+      if (confirmed) {
+        generateWallpaper(index);
+      }
+    }
+
+    /**
+     * Generate wallpaper image only (does NOT set as background)
+     * User can then use "貼り付け" button to apply to selected slide
+     * @param {number} index - Prompt index in allSlides array (0-based)
+     */
+    function generateWallpaper(index) {
+      const slide = allSlides[index];
+      const prompt = slide.englishPrompt || slide.prompt;
+      const apiKey = document.getElementById('geminiApiKey').value;
+
+      // Show loading state
+      const btn = document.getElementById('wallpaper-btn-' + index);
+      const loading = document.getElementById('wallpaper-loading-' + index);
+      const success = document.getElementById('wallpaper-success-' + index);
+
+      btn.disabled = true;
+      loading.classList.add('show');
+      success.classList.remove('show');
+
+      // Generate image only (do not set as background)
+      google.script.run
+        .withSuccessHandler(function(result) {
+          loading.classList.remove('show');
+          btn.disabled = false;
+
+          if (result.success) {
+            success.textContent = '✓ 画像を生成しました（貼り付けボタンでスライドに設定）';
+            success.classList.add('show');
+
+            // Store image data for later use
+            allSlides[index].generatedImageData = result.imageData;
+            allSlides[index].generatedMimeType = result.mimeType || 'image/png';
+
+            // Show thumbnail with paste button
+            if (result.imageData) {
+              showThumbnail(index, result.imageData, result.mimeType || 'image/png');
+            }
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+              success.classList.remove('show');
+            }, 5000);
+          } else {
+            showError('壁紙生成エラー: ' + result.error);
+          }
+        })
+        .withFailureHandler(function(error) {
+          loading.classList.remove('show');
+          btn.disabled = false;
+          showError('壁紙生成に失敗しました: ' + error.message);
+        })
+        .generateImageOnly(prompt, index + 1, apiKey);
+    }
+
+    /**
+     * Show confirmation dialog before generating wallpaper to active slide
+     * @param {number} index - Slide index (0-based in allSlides)
+     */
+    function confirmGenerateWallpaperToActive(index) {
+      const slide = allSlides[index];
+
+      const confirmed = confirm(
+        '📍 現在選択中のスライドにこの壁紙を設定します\n\n' +
+        '壁紙: ' + slide.japaneseTitle + '\n\n' +
+        '有料自動生成（約20円）→ OK'
+      );
+
+      if (confirmed) {
+        generateWallpaperToActive(index);
+      }
+    }
+
+    /**
+     * Generate wallpaper and set to currently active slide
+     * @param {number} index - Prompt index in allSlides array (0-based)
+     */
+    function generateWallpaperToActive(index) {
+      const slide = allSlides[index];
+      const prompt = slide.englishPrompt || slide.prompt;
+      const apiKey = document.getElementById('geminiApiKey').value;
+
+      // Prepare slide data for text overlay
+      const slideData = {
+        japaneseTitle: slide.japaneseTitle,
+        englishTitle: slide.englishTitle,
+        japaneseMessage: slide.japaneseMessage || slide.message,
+        englishMessage: slide.englishMessage
+      };
+
+      // Show loading state
+      const btn = document.getElementById('wallpaper-active-btn-' + index);
+      const loading = document.getElementById('wallpaper-loading-' + index);
+      const success = document.getElementById('wallpaper-success-' + index);
+
+      btn.disabled = true;
+      document.getElementById('wallpaper-btn-' + index).disabled = true;
+      loading.classList.add('show');
+      success.classList.remove('show');
+
+      // First, get the current active slide index
+      google.script.run
+        .withSuccessHandler(function(activeSlideIndex) {
+          if (activeSlideIndex < 0) {
+            loading.classList.remove('show');
+            btn.disabled = false;
+            document.getElementById('wallpaper-btn-' + index).disabled = false;
+            showError('スライドを選択してください。Googleスライドで背景を設定したいスライドをクリックしてから、もう一度お試しください。');
+            return;
+          }
+
+          // Now generate and set background on the active slide
+          google.script.run
+            .withSuccessHandler(function(result) {
+              loading.classList.remove('show');
+              btn.disabled = false;
+              document.getElementById('wallpaper-btn-' + index).disabled = false;
+
+              if (result.success) {
+                success.textContent = '✓ スライド ' + (activeSlideIndex + 1) + ' に設定しました';
+                success.classList.add('show');
+
+                // Show thumbnail if image data is available
+                if (result.imageData) {
+                  showThumbnail(index, result.imageData, result.mimeType || 'image/png');
+                }
+
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                  success.classList.remove('show');
+                }, 5000);
+              } else {
+                showError('壁紙生成エラー: ' + result.error);
+              }
+            })
+            .withFailureHandler(function(error) {
+              loading.classList.remove('show');
+              btn.disabled = false;
+              document.getElementById('wallpaper-btn-' + index).disabled = false;
+              showError('壁紙生成に失敗しました: ' + error.message);
+            })
+            .generateAndSetBackground(prompt, activeSlideIndex, apiKey, null);  // テキストオーバーレイ無効
+        })
+        .withFailureHandler(function(error) {
+          loading.classList.remove('show');
+          btn.disabled = false;
+          document.getElementById('wallpaper-btn-' + index).disabled = false;
+          showError('アクティブスライドの取得に失敗しました: ' + error.message);
+        })
+        .getActiveSlideIndex();
+    }
+
+    /**
+     * Show generated image thumbnail
+     * @param {number} index - Slide index
+     * @param {string} imageData - Base64 encoded image
+     * @param {string} mimeType - Image MIME type
+     */
+    function showThumbnail(index, imageData, mimeType) {
+      const container = document.getElementById('thumbnail-' + index);
+      const dataUrl = 'data:' + mimeType + ';base64,' + imageData;
+
+      container.innerHTML = `
+        <img src="${dataUrl}" alt="生成された壁紙" onclick="openImageInNewTab('${dataUrl}')" title="クリックで拡大">
+        <div class="thumbnail-actions">
+          <button onclick="downloadImage('${dataUrl}', 'slide_${index + 1}_wallpaper.png')">💾 保存</button>
+          <button onclick="applyBackgroundToActive(${index})" class="btn-apply-bg">📋 貼り付け</button>
+        </div>
+      `;
+    }
+
+    /**
+     * Open image in new tab for full view
+     * @param {string} dataUrl - Data URL of the image
+     */
+    function openImageInNewTab(dataUrl) {
+      const newTab = window.open();
+      newTab.document.write('<html><head><title>生成された壁紙</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#111;"><img src="' + dataUrl + '" style="max-width:100%;max-height:100vh;"></body></html>');
+    }
+
+    /**
+     * Download image
+     * @param {string} dataUrl - Data URL of the image
+     * @param {string} filename - Download filename
+     */
+    function downloadImage(dataUrl, filename) {
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /**
+     * Regenerate wallpaper (with confirmation)
+     * @param {number} index - Slide index
+     */
+    function regenerateWallpaper(index) {
+      confirmGenerateWallpaper(index);
+    }
+
+    /**
+     * Apply stored image as background to currently selected slide
+     * @param {number} index - Prompt index in allSlides array
+     */
+    function applyBackgroundToActive(index) {
+      const slide = allSlides[index];
+      const imageData = slide.generatedImageData;
+      const mimeType = slide.generatedMimeType || 'image/png';
+
+      if (!imageData) {
+        showError('先に画像を生成してください。');
+        return;
+      }
+
+      // Get currently active slide, then set background
+      google.script.run
+        .withSuccessHandler(function(activeSlideIndex) {
+          if (activeSlideIndex < 0) {
+            showError('スライドを選択してください。');
+            return;
+          }
+
+          // Set background on the active slide
+          google.script.run
+            .withSuccessHandler(function(result) {
+              if (result.success) {
+                showSuccess('スライド ' + (activeSlideIndex + 1) + ' に背景を設定しました');
+              } else {
+                showError('背景設定エラー: ' + result.error);
+              }
+            })
+            .withFailureHandler(function(error) {
+              showError('背景設定に失敗しました: ' + error.message);
+            })
+            .setSlideBackground(activeSlideIndex, imageData, mimeType);
+        })
+        .withFailureHandler(function(error) {
+          showError('スライド取得に失敗しました: ' + error.message);
+        })
+        .getActiveSlideIndex();
+    }
+
+    // Show Error
+    function showError(message) {
+      const el = document.getElementById('errorMessage');
+      el.textContent = message;
+      el.classList.add('show');
+    }
+
+    // Show Success
+    function showSuccess(message) {
+      const el = document.getElementById('successMessage');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 5000);
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Save Settings
+    function saveSettings() {
+      const settings = {
+        slideCountMode: document.getElementById('slideCountMode').value,
+        slideCount: document.getElementById('slideCount').value,
+        customStyle: document.getElementById('customStyle').value,
+        showJapaneseTitle: document.getElementById('showJapaneseTitle').checked,
+        showEnglishTitle: document.getElementById('showEnglishTitle').checked,
+        showJapaneseMessage: document.getElementById('showJapaneseMessage').checked,
+        showEnglishMessage: document.getElementById('showEnglishMessage').checked,
+        jpTitlePosition: document.getElementById('jpTitlePosition').value,
+        jpTitleColor: document.getElementById('jpTitleColor').value,
+        jpMessagePosition: document.getElementById('jpMessagePosition').value,
+        jpMessageColor: document.getElementById('jpMessageColor').value,
+        jpMessageAmount: document.getElementById('jpMessageAmount').value,
+        jpTitleAlignment: document.getElementById('jpTitleAlignment').value,
+        jpMessageAlignment: document.getElementById('jpMessageAlignment').value,
+        selectedStyles: []
+      };
+
+      // Save selected styles
+      document.querySelectorAll('.category-styles input[type="checkbox"]:checked').forEach(cb => {
+        settings.selectedStyles.push(cb.value);
+      });
+
+      localStorage.setItem('slideGenAddonSettings', JSON.stringify(settings));
+    }
+
+    // Load Settings
+    function loadSettings() {
+      const saved = localStorage.getItem('slideGenAddonSettings');
+      if (!saved) return;
+
+      try {
+        const settings = JSON.parse(saved);
+
+        if (settings.slideCountMode) {
+          document.getElementById('slideCountMode').value = settings.slideCountMode;
+          document.getElementById('slideCount').style.display =
+            settings.slideCountMode === 'manual' ? 'block' : 'none';
+        }
+
+        if (settings.slideCount) {
+          document.getElementById('slideCount').value = settings.slideCount;
+        }
+
+        if (settings.customStyle) {
+          document.getElementById('customStyle').value = settings.customStyle;
+        }
+
+        document.getElementById('showJapaneseTitle').checked = settings.showJapaneseTitle !== false;
+        document.getElementById('showEnglishTitle').checked = settings.showEnglishTitle !== false;
+        document.getElementById('showJapaneseMessage').checked = settings.showJapaneseMessage !== false;
+        document.getElementById('showEnglishMessage').checked = settings.showEnglishMessage !== false;
+
+        if (settings.jpTitlePosition) document.getElementById('jpTitlePosition').value = settings.jpTitlePosition;
+        if (settings.jpTitleAlignment) document.getElementById('jpTitleAlignment').value = settings.jpTitleAlignment;
+        if (settings.jpTitleColor) document.getElementById('jpTitleColor').value = settings.jpTitleColor;
+        if (settings.jpMessagePosition) document.getElementById('jpMessagePosition').value = settings.jpMessagePosition;
+        if (settings.jpMessageAlignment) document.getElementById('jpMessageAlignment').value = settings.jpMessageAlignment;
+        if (settings.jpMessageColor) document.getElementById('jpMessageColor').value = settings.jpMessageColor;
+        if (settings.jpMessageAmount) document.getElementById('jpMessageAmount').value = settings.jpMessageAmount;
+
+        // Restore selected styles
+        if (settings.selectedStyles && settings.selectedStyles.length > 0) {
+          // First, uncheck all
+          document.querySelectorAll('.category-styles input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+          });
+          // Then check saved ones
+          settings.selectedStyles.forEach(style => {
+            const cb = document.getElementById('style-' + style);
+            if (cb) cb.checked = true;
+          });
+        }
+
+        // Expand categories with selected styles and update status
+        expandSelectedCategories();
+        updateCategorySelectionStatus();
+
+      } catch (e) {
+        console.error('Failed to load settings:', e);
+      }
+    }
+  </script>
+</body>
+</html>

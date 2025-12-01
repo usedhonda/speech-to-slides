@@ -1,0 +1,15 @@
+# OS
+.DS_Store
+*.DS_Store
+
+# Docs and logs
+docs/
+CLAUDE.md
+log_webapp/
+
+# IDE
+.idea/
+.vscode/
+
+# clasp credentials (if any)
+.clasprc.json
