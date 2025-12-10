@@ -5,10 +5,10 @@
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent';
 
 // アドオンバージョン情報
-const ADDON_VERSION = '1.8.5';
-const ADDON_BUILD_DATE = '2025-12-01';
-const ADDON_DEPLOY_NUMBER = 52;
-const ADDON_BUILD_TIMESTAMP = '20251201_180000'; // キャッシュバスター用
+const ADDON_VERSION = '1.8.7';
+const ADDON_BUILD_DATE = '2025-12-07';
+const ADDON_DEPLOY_NUMBER = 54;
+const ADDON_BUILD_TIMESTAMP = '20251207_220150'; // キャッシュバスター用
 
 /**
  * アドオンのバージョン情報を取得
@@ -543,25 +543,13 @@ ${settings.slideCountMode === 'manual' ?
         : Math.min(35, Math.max(5, Math.ceil(charCount / 300)));
     const maxOutputTokens = Math.min(16384, Math.max(2048, 500 + expectedSlides * 400));
 
-    // Define JSON schema for structured output (as recommended by Gemini & ChatGPT)
-    // Using UPPERCASE type names as Gemini API requires
-    const slideSchema = {
-        type: "ARRAY",
-        items: {
-            type: "OBJECT",
-            properties: {
-                slideNumber: { type: "INTEGER" },
-                japaneseTitle: { type: "STRING" },
-                englishTitle: { type: "STRING" },
-                japaneseMessage: { type: "STRING" },
-                englishMessage: { type: "STRING" },
-                visualDescription: { type: "STRING" },
-                visualDescriptionEn: { type: "STRING" }
-            },
-            required: ["slideNumber", "japaneseTitle", "englishTitle", "japaneseMessage", "englishMessage", "visualDescription", "visualDescriptionEn"]
-        }
-    };
+    // NOTE: slideSchema was removed - responseSchema causes inconsistent output with Gemini API
+    // See CLAUDE.md: "responseSchemaとプロンプト内のJSON指示が競合する"
+    // JSON format is now specified only in the prompt instructions above
 
+    // NOTE: responseSchema was removed due to inconsistent behavior with Gemini API
+    // See CLAUDE.md: "responseSchemaとプロンプト内のJSON指示が競合する"
+    // Using responseMimeType: "application/json" + prompt instructions instead
     const payload = {
         contents: [{
             parts: [{
@@ -570,8 +558,8 @@ ${settings.slideCountMode === 'manual' ?
         }],
         generationConfig: {
             maxOutputTokens: maxOutputTokens,
-            responseMimeType: "application/json",
-            responseSchema: slideSchema  // Add schema for 100% JSON compliance
+            responseMimeType: "application/json"
+            // responseSchema removed - causes inconsistent output when combined with prompt JSON instructions
         }
     };
 
@@ -636,8 +624,8 @@ ${settings.slideCountMode === 'manual' ?
             errorOutput += '・無料枠の場合、1分あたりのリクエスト数に制限があります。';
         } else if (responseCode === 400) {
             errorOutput += '・リクエストの形式に問題があります。\n';
-            errorOutput += '・responseSchemaの形式が正しいか確認してください。\n';
-            errorOutput += '・プロンプトの内容に問題がある可能性があります。';
+            errorOutput += '・プロンプトの内容に問題がある可能性があります。\n';
+            errorOutput += '・入力テキストが長すぎる場合は短くしてお試しください。';
         } else if (responseCode === 503) {
             errorOutput += '・モデルが過負荷状態または一時的に利用不可です。\n';
             errorOutput += '・しばらく待ってから再試行してください。';
@@ -721,10 +709,9 @@ ${settings.slideCountMode === 'manual' ?
         }
 
         errorMsg += '\n【対処方法】\n';
-        errorMsg += '1. responseSchemaが正しく設定されているか確認してください\n';
-        errorMsg += '2. プロンプトで「JSONのみを出力」と明示的に指示してください\n';
+        errorMsg += '1. 再度実行してみてください（一時的な問題の可能性）\n';
+        errorMsg += '2. 入力テキストが長すぎる場合は短くしてお試しください\n';
         errorMsg += '3. APIキーが有効で、クォータが残っているか確認してください\n';
-        errorMsg += '4. 再度実行してみてください（一時的な問題の可能性）\n';
 
         throw new Error(errorMsg);
     }

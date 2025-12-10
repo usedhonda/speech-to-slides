@@ -1181,6 +1181,7 @@
         // 許可ドメイン: APIキー欄を非表示、内部キーを使用
         document.getElementById('apiKeySection').style.display = 'none';
         document.getElementById('geminiApiKey').value = INTERNAL_API_KEY;
+        console.log('initializeSidebar - INTERNAL_API_KEY set, length:', INTERNAL_API_KEY ? INTERNAL_API_KEY.length : 0);
         // ボタンを有効化
         updateButtonStates(true);
       } else {
@@ -1573,9 +1574,12 @@
       }
 
       const apiKey = document.getElementById('geminiApiKey').value;
+      console.log('generateSlides - apiKey exists:', !!apiKey, 'length:', apiKey ? apiKey.length : 0);
+      console.log('generateSlides - isAuthorizedUser:', isAuthorizedUser);
 
       // Collect settings
       const settings = collectSettings();
+      console.log('generateSlides - settings.geminiApiKey exists:', !!settings.geminiApiKey);
 
       // Show loading
       document.getElementById('loading').classList.add('show');
