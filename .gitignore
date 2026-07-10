@@ -1,14 +1,9 @@
-# >>> project-bootstrap managed >>>
-.cc-status-bar.voice.json
-# <<< project-bootstrap managed <<<
-
 # OS
 .DS_Store
 *.DS_Store
 
 # Docs and logs
 docs/
-CLAUDE.md
 log_webapp/
 
 # IDE
@@ -17,3 +12,10 @@ log_webapp/
 
 # clasp credentials (if any)
 .clasprc.json
+
+# >>> project-bootstrap local-only >>>
+CLAUDE.local.md
+.codex/config.toml
+.local/
+.cc-status-bar.voice.json
+# <<< project-bootstrap local-only <<<
