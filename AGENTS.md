@@ -183,7 +183,7 @@ slide_gen/
 │
 ├── .clasp.json                  # Clasp設定
 ├── README.md                    # 使い方ガイド
-└── CLAUDE.md                    # このファイル
+└── AGENTS.md                    # このファイル
 ```
 
 ## API仕様
