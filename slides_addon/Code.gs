@@ -2,7 +2,7 @@
 // Generates slides directly in Google Slides from speech text
 
 // Configuration
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent';
 
 // アドオンバージョン情報
 const ADDON_VERSION = '1.8.7';
@@ -289,7 +289,7 @@ function validateApiKey(apiKey) {
             };
         }
 
-        // Step 2: Test if gemini-3-pro-preview is actually usable
+        // Step 2: Test Gemini 3.1 Pro access using low thinking
         const testUrl = GEMINI_API_URL + '?key=' + apiKey;
         const testPayload = {
             contents: [{
@@ -298,8 +298,9 @@ function validateApiKey(apiKey) {
                 }]
             }],
             generationConfig: {
+                maxOutputTokens: 128,
                 thinkingConfig: {
-                    thinkingBudget: 0
+                    thinkingLevel: 'LOW'
                 }
             }
         };
@@ -314,15 +315,13 @@ function validateApiKey(apiKey) {
         const testCode = testResponse.getResponseCode();
         const testText = testResponse.getContentText();
 
-        if (testCode === 400) {
-            if (testText.includes('Budget 0 is invalid') || testText.includes('thinking mode')) {
-                return {
-                    valid: true,
-                    hasTextGeneration: true,
-                    hasImageGeneration: 'unknown',
-                    message: 'APIキー有効（プロンプト生成OK）'
-                };
-            }
+        if (testCode === 200) {
+            return {
+                valid: true,
+                hasTextGeneration: true,
+                hasImageGeneration: 'unknown',
+                message: 'APIキー有効（プロンプト生成OK）'
+            };
         }
 
         if (testCode === 429) {
@@ -1128,9 +1127,7 @@ ${prompts.join('\n\n---PROMPT---\n\n')}
 
 Output format: Return translations separated by "---TRANSLATION---" markers in the same order.`;
 
-    // Calculate thinkingBudget based on prompts size
-    const totalChars = prompts.join('').length;
-    const thinkingBudget = Math.min(4096, Math.max(256, 256 + prompts.length * 128 + Math.floor(totalChars / 2000) * 64));
+    // Use supported Gemini 3.1 Pro thinking levels for translation.
 
     const payload = {
         contents: [{
@@ -1144,7 +1141,7 @@ Output format: Return translations separated by "---TRANSLATION---" markers in t
             topP: 0.95,
             maxOutputTokens: 8192,
             thinkingConfig: {
-                thinkingBudget: thinkingBudget
+                thinkingLevel: 'MEDIUM'
             }
         }
     };
@@ -1291,7 +1288,7 @@ function formatAsMarkdown(prompts, settings) {
 // Image Generation Functions (Nano Banana Pro / Gemini 3 Pro Image)
 // ============================================================
 
-const GEMINI_IMAGE_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent';
+const GEMINI_IMAGE_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image:generateContent';
 
 /**
  * Generate a 2K wallpaper image using Gemini 3 Pro Image (Nano Banana Pro)
@@ -1324,8 +1321,8 @@ function generateSlideImage(prompt, slideNumber, apiKey) {
             }]
         }],
         generationConfig: {
-            responseModalities: ['image'],
-            // 2K resolution (1920x1080 or similar) - API will optimize
+            responseModalities: ['IMAGE'],
+            imageConfig: { aspectRatio: '16:9', imageSize: '2K' },
         },
         safetySettings: [
             { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
