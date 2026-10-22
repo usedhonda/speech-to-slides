@@ -1,7 +1,7 @@
 // Google Apps Script Backend for Slide Prompt Generator
 
 // Configuration
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent';
 
 /**
  * Serves the HTML web app
@@ -63,10 +63,8 @@ function validateApiKey(apiKey) {
             };
         }
 
-        // Step 2: Test if gemini-3-pro-preview is actually usable (not just listed)
-        // Use thinkingBudget: 0 for fast validation (no token consumption)
-        // - Free keys: 429 with "limit: 0" (quota exceeded)
-        // - Paid keys: 400 with "Budget 0 is invalid" (model accessible but invalid param)
+        // Step 2: Test actual model access with a low-thinking request.
+        // An invalid parameter (HTTP 400) is not proof of access.
         const testUrl = GEMINI_API_URL + '?key=' + apiKey;
         const testPayload = {
             contents: [{
@@ -75,8 +73,9 @@ function validateApiKey(apiKey) {
                 }]
             }],
             generationConfig: {
+                maxOutputTokens: 128,
                 thinkingConfig: {
-                    thinkingBudget: 0
+                    thinkingLevel: 'LOW'
                 }
             }
         };
@@ -91,16 +90,13 @@ function validateApiKey(apiKey) {
         const testCode = testResponse.getResponseCode();
         const testText = testResponse.getContentText();
 
-        if (testCode === 400) {
-            // "Budget 0 is invalid" means the model is accessible - this is a paid key
-            if (testText.includes('Budget 0 is invalid') || testText.includes('thinking mode')) {
-                return {
-                    valid: true,
-                    hasTextGeneration: true,
-                    hasImageGeneration: 'unknown',
-                    message: 'APIキー有効（プロンプト生成OK）'
-                };
-            }
+        if (testCode === 200) {
+            return {
+                valid: true,
+                hasTextGeneration: true,
+                hasImageGeneration: 'unknown',
+                message: 'APIキー有効（プロンプト生成OK）'
+            };
         }
 
         if (testCode === 429) {
@@ -330,13 +326,11 @@ ${settings.slideCountMode === 'manual' ?
 - 例: [{"slideNumber": 1, "japaneseTitle": "...", ...}, {"slideNumber": 2, ...}]
 `;
 
-    // Calculate thinkingBudget based on input size and expected output
-    // Base: 256 tokens, + 64 per 1000 chars, + 128 per expected slide
+    // Estimate output length from transcript and slide count.
     const charCount = speechText.length;
     const expectedSlides = settings.slideCountMode === 'manual'
         ? parseInt(settings.slideCount) || 10
         : Math.min(35, Math.max(5, Math.ceil(charCount / 300)));  // More generous estimate for auto mode
-    const thinkingBudget = Math.min(8192, Math.max(256, 256 + Math.floor(charCount / 1000) * 64 + expectedSlides * 128));
 
     // Calculate maxOutputTokens: ~400 tokens per slide (titles, messages, visual descriptions, JSON structure)
     // Base: 500 tokens for JSON structure overhead, + 400 per slide
@@ -865,10 +859,7 @@ ${prompts.join('\n\n---PROMPT---\n\n')}
 
 Output format: Return translations separated by "---TRANSLATION---" markers in the same order.`;
 
-    // Calculate thinkingBudget based on prompts size
-    // Base: 256 tokens, + 128 per prompt
-    const totalChars = prompts.join('').length;
-    const thinkingBudget = Math.min(4096, Math.max(256, 256 + prompts.length * 128 + Math.floor(totalChars / 2000) * 64));
+    // Use supported Gemini 3.1 Pro thinking levels for translation.
 
     const payload = {
         contents: [{
@@ -882,7 +873,7 @@ Output format: Return translations separated by "---TRANSLATION---" markers in t
             topP: 0.95,
             maxOutputTokens: 8192,
             thinkingConfig: {
-                thinkingBudget: thinkingBudget
+                thinkingLevel: 'MEDIUM'
             }
         }
     };
@@ -1106,7 +1097,7 @@ function generateImage(prompt, slideNumber, apiKey) {
 
         apiKey = apiKey.trim();
         // Gemini 3 Pro Image (Nano Banana Pro) API endpoint
-        const imageApiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent';
+        const imageApiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image:generateContent';
 
         // Request payload
         const payload = {
@@ -1116,14 +1107,13 @@ function generateImage(prompt, slideNumber, apiKey) {
                 }]
             }],
             generationConfig: {
-                responseModalities: ['image'],
-                numberOfImages: 1,
-                aspectRatio: '16:9',
-                safetySettings: [{
-                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                    threshold: 'BLOCK_NONE'
-                }]
-            }
+                responseModalities: ['IMAGE'],
+                imageConfig: { aspectRatio: '16:9', imageSize: '2K' }
+            },
+            safetySettings: [{
+                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                threshold: 'BLOCK_NONE'
+            }]
         };
 
         // HTTP request options

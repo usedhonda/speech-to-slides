@@ -31,8 +31,8 @@ Google Apps Script（GAS）で作成したスライド画像生成プロンプ�
   - 無料の AI Studio キーでは `gemini-3-pro` シリーズを利用できません
   - [Google Cloud Console](https://console.cloud.google.com/) で請求先アカウントを設定してください
   - 使用モデル:
-    - テキスト生成: `gemini-3-pro-preview` (スライド分析・翻訳)
-    - 画像生成: `gemini-3-pro-image-preview` (Nano Banana Pro、約20円/枚)
+    - テキスト生成: `gemini-3.1-pro-preview` (スライド分析・翻訳)
+    - 画像生成: `gemini-3-pro-image` (Nano Banana Pro。料金はGoogle公式表を確認)
 
 ## デプロイ手順
 
