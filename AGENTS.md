@@ -10,7 +10,7 @@ Google Apps Script（GAS）で構築されたウェブアプリケーション�
 - **バックエンド**: Google Apps Script (V8 Runtime)
 - **フロントエンド**: HTML/CSS/JavaScript (Vanilla JS)
 - **AI API**:
-  - Gemini 3 Pro Preview (`gemini-3.1-pro-preview`) - プロンプト生成・翻訳
+  - Gemini 3.1 Pro Preview (`gemini-3.1-pro-preview`) - プロンプト生成・翻訳
   - Gemini 3 Pro Image (`gemini-3-pro-image`) - 画像生成 (Nano Banana Pro)
 - **ストレージ**: LocalStorage (ブラウザー内設定保存)
 
