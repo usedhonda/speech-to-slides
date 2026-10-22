@@ -32,7 +32,7 @@ Google Apps Script（GAS）で作成したスライド画像生成プロンプ�
   - [Google Cloud Console](https://console.cloud.google.com/) で請求先アカウントを設定してください
   - 使用モデル:
     - テキスト生成: `gemini-3.1-pro-preview` (スライド分析・翻訳)
-    - 画像生成: `gemini-3-pro-image` (Nano Banana Pro、約20円/枚)
+    - 画像生成: `gemini-3-pro-image` (Nano Banana Pro。料金はGoogle公式表を確認)
 
 ## デプロイ手順
 
