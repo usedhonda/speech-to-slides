@@ -10,8 +10,8 @@ Google Apps Script（GAS）で構築されたウェブアプリケーション�
 - **バックエンド**: Google Apps Script (V8 Runtime)
 - **フロントエンド**: HTML/CSS/JavaScript (Vanilla JS)
 - **AI API**:
-  - Gemini 3 Pro Preview (`gemini-3-pro-preview`) - プロンプト生成・翻訳
-  - Gemini 3 Pro Image (`gemini-3-pro-image-preview`) - 画像生成 (Nano Banana Pro)
+  - Gemini 3 Pro Preview (`gemini-3.1-pro-preview`) - プロンプト生成・翻訳
+  - Gemini 3 Pro Image (`gemini-3-pro-image`) - 画像生成 (Nano Banana Pro)
 - **ストレージ**: LocalStorage (ブラウザー内設定保存)
 
 **想定利用シーン**:
@@ -199,8 +199,8 @@ slide_gen/
 
 | 項目 | 詳細 |
 |------|------|
-| モデル | `gemini-3-pro-preview` |
-| エンドポイント | `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent` |
+| モデル | `gemini-3.1-pro-preview` |
+| エンドポイント | `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent` |
 | 用途 | スピーチ分析、プロンプト翻訳 |
 | 無料キー | ❌ **利用不可**（quota limit: 0） |
 | 有料キー | ✅ 利用可能（Cloud Billing必須） |
@@ -209,8 +209,8 @@ slide_gen/
 
 | 項目 | 詳細 |
 |------|------|
-| モデル | `gemini-3-pro-image-preview` |
-| エンドポイント | `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent` |
+| モデル | `gemini-3-pro-image` |
+| エンドポイント | `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image:generateContent` |
 | 用途 | スライド画像生成 |
 | 無料キー | ❌ **利用不可**（Cloud Billing必須） |
 | 有料キー | ✅ 利用可能 |
@@ -226,13 +226,13 @@ slide_gen/
 | プロンプト生成 | ❌ 利用不可 | ✅ 利用可能 |
 | 画像生成 | ❌ 利用不可 | ✅ 利用可能 |
 
-**理由**: `gemini-3-pro-preview` および `gemini-3-pro-image-preview` モデルは、無料キーではクォータが0に設定されています（モデル一覧には表示されますが、実際には利用できません）。
+**理由**: `gemini-3.1-pro-preview` および `gemini-3-pro-image` モデルは、無料キーではクォータが0に設定されています（モデル一覧には表示されますが、実際には利用できません）。
 
 ### 参考：Imagen 3.0との違い
 
 | 項目 | Nano Banana Pro（本プロジェクト使用） | Imagen 3.0 |
 |------|--------------------------------------|------------|
-| モデルID | `gemini-3-pro-image-preview` | `imagen-3.0-generate-001` |
+| モデルID | `gemini-3-pro-image` | `imagen-3.0-generate-001` |
 | 料金 | $0.134/枚 | $0.039/枚 |
 | 無料枠 | なし | あり |
 | テキスト描画 | 優秀 | 標準 |
@@ -243,7 +243,7 @@ slide_gen/
 ### APIキー検証機能
 
 フロントエンドでAPIキー入力時に自動検証を実行:
-- `gemini-3-pro-preview`への実際のリクエストで利用可否を確認
+- `gemini-3.1-pro-preview`への実際のリクエストで利用可否を確認
 - クォータが0の場合は「有料キーが必要」とエラー表示
 - 有効なキーの場合のみ機能を利用可能に
 
